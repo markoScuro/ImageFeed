@@ -21,15 +21,16 @@ final class OAuth2Service {
     // MARK: - Public Methods
     
     func make0AuthTokenRequest(with code: String) -> URLRequest? {
-        let baseURL = URL(string: "https:/unsplash.com")
-        guard let url = URL(string: "\(Constants.baseURL)"
-                            + "?client_id=\(Constants.accessKey)"
-                            + "&&client_secret=\(Constants.secretKey)"
-                            + "&&redirect_uri=\(Constants.redirectURI)"
-                            + "&&code=\(code)"
-                            + "&&grant_type=authorization_code",
-                            relativeTo: baseURL
-        ) else {
+        
+        var components = URLComponents(string: "https://unsplash.com/oauth/token")
+        components?.queryItems = [
+            URLQueryItem(name: "client_id", value: Constants.accessKey),
+            URLQueryItem(name: "client_secret", value: Constants.secretKey),
+            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
+            URLQueryItem(name: "code", value: code),
+            URLQueryItem(name: "grant_type", value: "authorization_code")
+        ]
+        guard let url = components?.url else {
             return nil
         }
         
@@ -46,15 +47,15 @@ final class OAuth2Service {
         }
         
         let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
+//        decoder.keyDecodingStrategy = .convertFromSnakeCase
         let task = URLSession.shared.data(for: request) { result in
             switch result {
             case .success(let data):
                 do {
                     let response = try decoder.decode(OAuthTokenResponseBody.self, from: data)
                     let tokenStorage = OAuth2TokenStorage()
-                    tokenStorage.bearerToken = response.access_token
-                    completion(.success("\(response.access_token)"))
+                    tokenStorage.bearerToken = response.accessToken
+                    completion(.success("\(response.accessToken)"))
                 } catch {
                     print("Error decoding OAuthTokenResponseBody: \(error)")
                     completion(.failure(NetworkError.invalidJSON))

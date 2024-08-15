@@ -14,7 +14,10 @@ final class AuthViewController: UIViewController {
     weak var delegate: AuthViewControllerDelegate?
     
     // MARK: - Private Properties
-    
+    private enum Identifiers {
+        static let showWebViewSegueIdentifier = "ShowWebView"
+        static let tapBarViewControllerID = "TabBarViewController"
+    }
     private let showWebViewSegueIdentifier = "ShowWebView"
     private let tokenStorage = OAuth2TokenStorage.shared
     private let OAuthService = OAuth2Service.shared
@@ -29,10 +32,10 @@ final class AuthViewController: UIViewController {
     // MARK: - Overrides Methods
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showWebViewSegueIdentifier {
+        if segue.identifier == Identifiers.showWebViewSegueIdentifier {
             guard
                 let webViewViewController = segue.destination as? WebViewViewController
-            else { fatalError("Failed to prepare for \(showWebViewSegueIdentifier)") }
+            else { fatalError("Failed to prepare for \(Identifiers.showWebViewSegueIdentifier)") }
             webViewViewController.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
@@ -48,7 +51,7 @@ final class AuthViewController: UIViewController {
         }
         
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)
-            .instantiateViewController(withIdentifier: "TabBarViewController")
+            .instantiateViewController(withIdentifier: Identifiers.tapBarViewControllerID)
         
         window.rootViewController = tabBarController
     }
@@ -60,7 +63,8 @@ extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         navigationController?.popViewController(animated: true)
         
-        OAuthService.fetchOAuthToken(code: code) { [self] result in
+        OAuthService.fetchOAuthToken(code: code) { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .success(let token):
                 print(token)
