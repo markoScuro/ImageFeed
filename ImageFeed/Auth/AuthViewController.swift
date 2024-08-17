@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 final class AuthViewController: UIViewController {
     
@@ -14,11 +15,12 @@ final class AuthViewController: UIViewController {
     weak var delegate: AuthViewControllerDelegate?
     
     // MARK: - Private Properties
+    
     private enum Identifiers {
         static let showWebViewSegueIdentifier = "ShowWebView"
         static let tapBarViewControllerID = "TabBarViewController"
     }
-    private let showWebViewSegueIdentifier = "ShowWebView"
+   
     private let tokenStorage = OAuth2TokenStorage.shared
     private let OAuthService = OAuth2Service.shared
     
@@ -62,9 +64,14 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         navigationController?.popViewController(animated: true)
+        ProgressHUD.animate()
+        ProgressHUD.animationType = .circleBarSpinFade
+        ProgressHUD.colorHUD = UIColor.blue
         
         OAuthService.fetchOAuthToken(code: code) { [weak self] result in
             guard let self = self else { return }
+            ProgressHUD.dismiss()
+            
             switch result {
             case .success(let token):
                 print(token)

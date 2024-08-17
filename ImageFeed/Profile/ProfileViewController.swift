@@ -11,6 +11,8 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - Private Properties
     
+    private let profileService = ProfileService.shared
+    
     private lazy var avatarImageView: UIImageView = {
         let image = UIImage(named: "avatar")
         let imageView = UIImageView(image: image)
@@ -51,7 +53,7 @@ final class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+       
         setupViews()
         setupConstraints()
     }
