@@ -6,6 +6,7 @@
 //
 
 import UIKit
+
 final class ImagesListCell: UITableViewCell {
     
     // MARK: - IB Outlets

@@ -6,12 +6,13 @@
 //
 
 import UIKit
+
 final class SingleImageViewController: UIViewController {
     
     // MARK: - IB Outlets
     
-    @IBOutlet var scrollView: UIScrollView!
-    @IBOutlet var imageView: UIImageView!
+    @IBOutlet private var scrollView: UIScrollView!
+    @IBOutlet private var imageView: UIImageView!
     
     // MARK: - Public Properties
     
