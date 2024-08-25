@@ -9,43 +9,22 @@ import Foundation
 
 final class ProfileService {
     
-    struct ProfileResult: Codable {
-        let username: String
-        let firstName: String
-        let lastName: String
-        let bio: String?
-        
-        enum CodingKeys: String, CodingKey {
-            case username
-            case firstName = "first_name"
-            case lastName = "last_name"
-            case bio
-        }
-    }
-    
-    struct Profile {
-        let username: String
-        let name: String
-        let loginName: String
-        let bio: String?
-        
-        init(from profileResult: ProfileResult) {
-            self.username = profileResult.username
-            self.name = "\(profileResult.firstName) \(profileResult.lastName)"
-            self.loginName = "@\(profileResult.username)"
-            self.bio = profileResult.bio
-        }
-    }
+    // MARK: - Singleton ProfileService
     
     static let shared = ProfileService()
     private init() { }
+    
+    // MARK: - Private Properties
+    
     private let urlSession = URLSession.shared
     
     private var task: URLSessionTask?
     private(set) var profile: Profile?
     
+    // MARK: - Public Methods
     
     func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void) {
+        assert(Thread.isMainThread)
         if task != nil {
             task?.cancel()
         }
@@ -55,7 +34,6 @@ final class ProfileService {
             return
         }
         
-        
         task = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
             guard let self = self else { return }
             switch result {
@@ -63,13 +41,17 @@ final class ProfileService {
                 let profile = Profile(from: profileResult)
                 self.profile = profile
                 completion(.success(profile))
+                print("success")
             case .failure(let error):
                 print("[fetchProfile]: NetworkError - \(error.localizedDescription)")
                 completion(.failure(error))
+                print("failure")
             }
         }
         task?.resume()
     }
+    
+    // MARK: - Private Methods
     
     private func makeProfileRequest(token: String) -> URLRequest? {
         guard let url = URL(string: "https://api.unsplash.com/me") else {

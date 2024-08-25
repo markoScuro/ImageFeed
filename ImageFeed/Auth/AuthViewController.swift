@@ -20,7 +20,7 @@ final class AuthViewController: UIViewController {
         static let showWebViewSegueIdentifier = "ShowWebView"
         static let tapBarViewControllerID = "TabBarViewController"
     }
-   
+    
     private let tokenStorage = OAuth2TokenStorage.shared
     private let OAuthService = OAuth2Service.shared
     
@@ -56,6 +56,13 @@ final class AuthViewController: UIViewController {
             .instantiateViewController(withIdentifier: Identifiers.tapBarViewControllerID)
         
         window.rootViewController = tabBarController
+    }
+    
+    private func showAlert() {
+        let alert = UIAlertController(title: "Что-то пошло не так(", message: "Не удалось войти в систему", preferredStyle: .alert)
+        let action = UIAlertAction(title: "Ок", style: .default)
+        alert.addAction(action)
+        present(alert, animated: true)
     }
 }
 

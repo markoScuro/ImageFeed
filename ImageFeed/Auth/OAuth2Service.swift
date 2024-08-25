@@ -48,36 +48,40 @@ final class OAuth2Service {
             return
         }
         
-        let task = urlSession.dataTask(with: request) { [weak self]
-            data, response, error in DispatchQueue.main.async {
-                
+        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let tokenResponse):
+                    OAuth2TokenStorage.shared.bearerToken = tokenResponse.accessToken
+                    completion(.success(tokenResponse.accessToken))
+                case .failure(let error):
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .httpStatusCode(let statusCode):
+                            print("HTTP status code error: \(statusCode)")
+                        case .urlRequestError:
+                            print("URL request error: \(error))")
+                        case .urlSessionError:
+                            print("URL session error: \(error)")
+                        case .invalidURL:
+                            print("Invalid URL error: \(error)")
+                        case .invalidJSON:
+                            print("Invalid JSON error: \(error)")
+                        }
+                    } else {
+                        print("Other network error: \(error)")
+                    }
+                    completion(.failure(error))
+                }
                 self?.task = nil
                 self?.lastCode = nil
             }
         }
+        
         self.task = task
         task.resume()
     }
     
-    //        let task = URLSession.shared.data(for: request) { result in
-    //            switch result {
-    //            case .success(let data):
-    //                let decoder = JSONDecoder()
-    //                decoder.keyDecodingStrategy = .convertFromSnakeCase
-    //                do {
-    //                    let response = try decoder.decode(OAuthTokenResponseBody.self, from: data)
-    //                    let tokenStorage = OAuth2TokenStorage()
-    //                    tokenStorage.bearerToken = response.accessToken
-    //                    completion(.success("\(response.accessToken)"))
-    //                } catch {
-    //                    print("Error decoding OAuthTokenResponseBody: \(error)")
-    //                    completion(.failure(NetworkError.invalidJSON))
-    //                }
-    //            case .failure(let error):
-    //                print("Network error occurred: \(error)")
-    //                completion(.failure(error))
-    //            }
-    //        }
 }
 func make0AuthTokenRequest(with code: String) -> URLRequest? {
     
