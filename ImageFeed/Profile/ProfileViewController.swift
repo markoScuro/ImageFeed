@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import Kingfisher
 final class ProfileViewController: UIViewController {
     
     // MARK: - Private Properties
@@ -19,7 +19,7 @@ final class ProfileViewController: UIViewController {
         username: "ekaterina_nov",
         name: "Екатерина Новикова",
         loginName: "@ekaterina_nov",
-        bio: "Hello, world!"
+        description: "Hello, world!"
     )
     
     private var profileImageServiceObserver: NSObjectProtocol?
@@ -69,6 +69,7 @@ final class ProfileViewController: UIViewController {
         {[weak self] _ in guard let self = self else {return}
             self.updateAvatar()
         }
+        
         updateAvatar()
         updateProfileDetails(profile: profile)
         setupViews()
@@ -79,30 +80,31 @@ final class ProfileViewController: UIViewController {
     
     @IBAction private func didTapLogoutButton(_ sender: Any) { }
     
-    // MARK: - Private Methods
+    // MARK: - Public Methods
     
     func updateProfileDetails(profile: Profile) {
         self.profile = profile
         nameLabel.text = profile.name
         loginNameLabel.text = profile.loginName
-        descriptionLabel.text = profile.bio
+        descriptionLabel.text = profile.description
     }
     
+    // MARK: - Private Methods
+    
     private func updateAvatar() {
-        guard
-            let profileImageURL = ProfileImageService.shared.avatarURL,
-            let url = URL(string: profileImageURL)
+        guard let profileImageURL = ProfileImageService.shared.avatarURL,
+              let url = URL(string: profileImageURL)
         else { return }
-       
-//        imageViewProfile.kf.setImage(with: url) { result in
-//                     switch result {
-//                     case .success(let value):
-//                         print("Image: \(value.image); Image URL: \(value.source.url?.absoluteString ?? "")")
-//                     case .failure(let error):
-//                         print("Error: \(error)")
-//                     }
-//                 }
-             
+        
+        avatarImageView.kf.setImage(with: url) { result in
+            switch result {
+            case .success(let value):
+                print("Image: \(value.image); Image URL: \(value.source.url?.absoluteString ?? "")")
+            case .failure(let error):
+                print("Error: \(error)")
+            }
+        }
+        
     }
     
     private func setupViews() {
@@ -110,7 +112,6 @@ final class ProfileViewController: UIViewController {
             view.addSubview($0)
         }
     }
-    
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([

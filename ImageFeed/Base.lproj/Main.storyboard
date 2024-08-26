@@ -82,7 +82,7 @@
         <!--Auth View Controller-->
         <scene sceneID="Tvs-5q-hxx">
             <objects>
-                <viewController id="Leq-Um-JPo" customClass="AuthViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="AuthViewController" id="Leq-Um-JPo" customClass="AuthViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="dLT-ax-AvT">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -117,7 +117,7 @@
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="bOF-Dh-HFy"/>
-                        <color key="backgroundColor" red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="tZJ-lb-EDk" firstAttribute="centerX" secondItem="KAv-2f-OTz" secondAttribute="centerX" id="6gO-bI-H67"/>
                             <constraint firstItem="bOF-Dh-HFy" firstAttribute="bottom" secondItem="KAv-2f-OTz" secondAttribute="bottom" constant="90" id="Fui-S8-FNu"/>
@@ -201,21 +201,8 @@
                     <view key="view" contentMode="scaleToFill" id="ptp-xA-heb" customClass="SplashViewController">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash_logo_screen" translatesAutoresizingMaskIntoConstraints="NO" id="Q8k-ms-VsJ">
-                                <rect key="frame" x="159" y="387" width="75" height="78"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="75" id="Eve-lr-CVI"/>
-                                    <constraint firstAttribute="height" constant="77.680000000000007" id="hLg-Nl-Dlt"/>
-                                </constraints>
-                            </imageView>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="ze2-SR-LSL"/>
                         <color key="backgroundColor" red="0.1019607843" green="0.1058823529" blue="0.1333333333" alpha="1" colorSpace="calibratedRGB"/>
-                        <constraints>
-                            <constraint firstItem="Q8k-ms-VsJ" firstAttribute="centerY" secondItem="ptp-xA-heb" secondAttribute="centerY" id="9jc-Nj-EPi"/>
-                            <constraint firstItem="Q8k-ms-VsJ" firstAttribute="centerX" secondItem="ptp-xA-heb" secondAttribute="centerX" id="so7-Y1-vj1"/>
-                        </constraints>
                     </view>
                     <connections>
                         <segue destination="mRl-Y7-SNY" kind="presentation" identifier="ShowAuthenticationScreen" modalPresentationStyle="fullScreen" id="rJI-Qa-cp4"/>
@@ -238,10 +225,6 @@
                             <color key="backgroundColor" red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="calibratedRGB"/>
                         </tabBarAppearance>
                     </tabBar>
-                    <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="tAa-EE-DLs"/>
-                        <segue destination="ssa-cs-afI" kind="relationship" relationship="viewControllers" id="ne6-bY-h0t"/>
-                    </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sbq-sM-2Mo" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -250,7 +233,7 @@
         <!--Profile View Controller-->
         <scene sceneID="0I4-tN-ZMq">
             <objects>
-                <viewController id="ssa-cs-afI" customClass="ProfileViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ProfileViewController" id="ssa-cs-afI" customClass="ProfileViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ui1-fI-3uc">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -268,7 +251,7 @@
         <!--ImageList-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController title="ImageList" id="BYZ-38-t0r" customClass="ImagesListViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ImagesListViewController" title="ImageList" id="BYZ-38-t0r" customClass="ImagesListViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -391,7 +374,6 @@
         <image name="like_button_on" width="42" height="42"/>
         <image name="nav_back_button" width="24" height="24"/>
         <image name="nav_back_button_white" width="24" height="24"/>
-        <image name="splash_logo_screen" width="24.333333969116211" height="25.333333969116211"/>
         <image name="tab_editorial_active" width="30" height="30"/>
         <image name="tab_profile_active" width="75" height="49"/>
         <systemColor name="systemBackgroundColor">

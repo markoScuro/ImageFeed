@@ -24,7 +24,7 @@ final class WebViewViewController: UIViewController {
     // MARK: - Public Properties
     
     weak var delegate: WebViewViewControllerDelegate?
-  
+    
     // MARK: - Private Properties
     
     private var estimatedProgressObservation: NSKeyValueObservation?
@@ -36,15 +36,10 @@ final class WebViewViewController: UIViewController {
         
         loadAuthView()
         updateProgress()
+        progressObservation()
         webView.navigationDelegate = self
         
-        estimatedProgressObservation = webView.observe(
-                     \.estimatedProgress,
-                     options: [],
-                     changeHandler: { [weak self] _, _ in
-                         guard let self = self else { return }
-                         self.updateProgress()
-                     })
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -55,22 +50,7 @@ final class WebViewViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-      
-    }
-    
-    // MARK: - Override Methods
-    
-    override func observeValue(
-        forKeyPath keyPath: String?,
-        of object: Any?,
-        change: [NSKeyValueChangeKey : Any]?,
-        context: UnsafeMutableRawPointer?
-    ) {
-        if keyPath == #keyPath(WKWebView.estimatedProgress) {
-            updateProgress()
-        } else {
-            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
-        }
+        
     }
     
     // MARK: - IB Actions
@@ -82,6 +62,15 @@ final class WebViewViewController: UIViewController {
     
     // MARK: - Private Methods
     
+    private func progressObservation() {
+        estimatedProgressObservation = webView.observe(
+            \.estimatedProgress,
+             options: [],
+             changeHandler: { [weak self] _, _ in
+                 guard let self = self else { return }
+                 self.updateProgress()
+             })
+    }
     private func loadAuthView() {
         guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
             print()

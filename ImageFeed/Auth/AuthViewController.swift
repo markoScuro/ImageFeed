@@ -70,10 +70,11 @@ final class AuthViewController: UIViewController {
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
+        vc.dismiss(animated: true)
         navigationController?.popViewController(animated: true)
         ProgressHUD.animate()
         ProgressHUD.animationType = .circleBarSpinFade
-        ProgressHUD.colorHUD = UIColor.blue
+        ProgressHUD.colorHUD = UIColor.gray
         
         OAuthService.fetchOAuthToken(code: code) { [weak self] result in
             guard let self = self else { return }
@@ -85,12 +86,13 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 delegate?.authViewController(self, didAuthenticateWithCode: code)
                 self.switchToTabBarController()
             case .failure(let error):
+                showAlert()
                 print("Error fetching token: \(error)")
             }
         }
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
-        dismiss(animated: true)
+        dismiss(animated: true, completion: nil)
     }
 }

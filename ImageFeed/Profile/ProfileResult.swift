@@ -25,7 +25,7 @@ struct Profile: Codable {
     let username: String
     let name: String
     let loginName: String
-    let bio: String?
+    let description: String?
 }
 
 extension Profile {
@@ -33,7 +33,7 @@ extension Profile {
         self.username = profileResult.username
         self.name = "\(profileResult.firstName) \(profileResult.lastName)"
         self.loginName = "@\(profileResult.username)"
-        self.bio = profileResult.bio
+        self.description = profileResult.description
     }
 }
 
@@ -41,14 +41,14 @@ struct ProfileResult: Codable {
     let username: String
     let firstName: String
     let lastName: String
-    let bio: String?
+    let description: String?
     let profileImage: ProfileImage?
     
     enum CodingKeys: String, CodingKey {
         case username = "username"
         case firstName = "first_name"
         case lastName = "last_name"
-        case bio
+        case description
         case profileImage = "profile_image"
     }
 }
