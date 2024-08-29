@@ -12,8 +12,8 @@ extension URLSession {
     ) -> URLSessionTask {
         
         let fulfillCompletionOnTheMainThread: (Result<Data, Error>) -> Void = { result in
-            DispatchQueue.main.async {
-                completion(result)
+          DispatchQueue.main.async {
+            completion(result)
             }
         }
         

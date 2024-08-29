@@ -12,5 +12,4 @@ class SnakeCaseJSONDecoder: JSONDecoder {
         super.init()
         keyDecodingStrategy = .convertFromSnakeCase
     }
-    let shared = SnakeCaseJSONDecoder()
 }
