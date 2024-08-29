@@ -9,14 +9,14 @@ import Foundation
 
 final class OAuth2Service {
     
-    // MARK: - Public Properties
+    // MARK: - SingleTon OAuth2Service
     
     static let shared = OAuth2Service()
-    weak var delegate: AuthViewControllerDelegate?
-    
-    // MARK: - Initializers
-    
     private init() {}
+    
+    // MARK: - Public Properties
+    
+    weak var delegate: AuthViewControllerDelegate?
     
     // MARK: - Private Properties
     
@@ -28,22 +28,17 @@ final class OAuth2Service {
     
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
-        if task != nil {
-            if lastCode != code {
-                task?.cancel()
-            } else {
-                completion(.failure(NetworkError.urlRequestError))
-                return
-            }
-        } else {
-            if lastCode == code {
-                completion(.failure(NetworkError.urlRequestError))
-                return
-            }
+        guard lastCode != code else {
+            completion(.failure(OAuthError.urlRequestError))
+            print("URL request did not success")
+            return
         }
+        task?.cancel()
+        lastCode = code
+
         guard let request = make0AuthTokenRequest(with: code)
         else {
-            completion(.failure(NetworkError.urlRequestError))
+            completion(.failure(OAuthError.urlRequestError))
             print("Invalid fetch token request")
             return
         }
@@ -51,25 +46,19 @@ final class OAuth2Service {
         let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let tokenResponse):
-                    OAuth2TokenStorage.shared.bearerToken = tokenResponse.accessToken
-                    completion(.success(tokenResponse.accessToken))
+                case .success(let oathToken):
+                    OAuth2TokenStorage.shared.bearerToken = oathToken.accessToken
+                    completion(.success(oathToken.accessToken))
                 case .failure(let error):
-                    if let networkError = error as? NetworkError {
-                        switch networkError {
+                    if let oauthError = error as? OAuthError {
+                        switch oauthError {
                         case .httpStatusCode(let statusCode):
-                            print("HTTP status code error: \(statusCode)")
+                            print("HTTP status code error: \(statusCode.description)")
                         case .urlRequestError:
-                            print("URL request error: \(error))")
-                        case .urlSessionError:
-                            print("URL session error: \(error)")
-                        case .invalidURL:
-                            print("Invalid URL error: \(error)")
-                        case .invalidJSON:
-                            print("Invalid JSON error: \(error)")
+                            print("URL request error: \(error.localizedDescription))")
                         }
                     } else {
-                        print("Other network error: \(error)")
+                        print("Unknown network error: \(error.localizedDescription)")
                     }
                     completion(.failure(error))
                 }
@@ -77,7 +66,6 @@ final class OAuth2Service {
                 self?.lastCode = nil
             }
         }
-        
         self.task = task
         task.resume()
     }

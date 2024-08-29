@@ -8,20 +8,15 @@
 import Foundation
 
 struct UserResult: Codable {
-    
-    //        let profileImage: ProfileResult.ProfileImage
-    //
-    //             enum CodingKeys: String, CodingKey {
-    //                 case profileImage = "profile_image"
-    //             }
-    //         }
-    //
+    let profileImage: ProfileImage
+    enum CodingKeys: String, CodingKey {
+        case profileImage = "profile_image"
+    }
 }
-
 
 final class ProfileImageService {
     
-   // MARK: - Singleton ProfileImageService
+    // MARK: - Singleton ProfileImageService
     
     static let shared = ProfileImageService()
     private init(){}
@@ -29,7 +24,6 @@ final class ProfileImageService {
     // MARK: - Public Properties
     
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
-    
     
     // MARK: - Private Properties
     
@@ -44,6 +38,7 @@ final class ProfileImageService {
         assert(Thread.isMainThread)
         guard lastUsername != username else {
             completion(.failure(ProfileServiceError.invalidRequest))
+            print("Request did invalid")
             return
         }
         
@@ -52,6 +47,7 @@ final class ProfileImageService {
         
         guard let request = makeProfileImageRequest(username: username) else {
             completion(.failure(ProfileServiceError.invalidURL))
+            print("URL did not confirm")
             return
         }
         
@@ -61,6 +57,7 @@ final class ProfileImageService {
                 case .success(let userProfileResult):
                     guard let profileImageURL = userProfileResult.profileImage?.large else {
                         completion(.failure(ProfileServiceError.missingProfileImageURL))
+                        print("Profile image did not downloaded")
                         return
                     }
                     self?.avatarURL = profileImageURL
@@ -78,18 +75,19 @@ final class ProfileImageService {
                         case .httpStatusCode(let statusCode):
                             print("HTTP status code error: \(statusCode)")
                         case .urlRequestError:
-                            print("URL request error: \(error)")
+                            print("URL request error: \(error.localizedDescription)")
                         case .urlSessionError:
-                            print("URL session error: \(error)")
+                            print("URL session error: \(error.localizedDescription)")
                         case .invalidURL:
-                            print("Invalid URL error: \(error)")
+                            print("URL invalid error: \(error.localizedDescription)")
                         case .invalidJSON:
-                            print("Invalid JSON error: \(error)")
+                            print("JSON error: \(error.localizedDescription)")
                         }
                     } else {
-                        print("Network error: \(error)")
+                        print("Network error: \(error.localizedDescription)")
                     }
                     completion(.failure(error))
+                    print("\(NSError().localizedDescription)")
                 }
                 self?.task = nil
                 self?.lastUsername = nil

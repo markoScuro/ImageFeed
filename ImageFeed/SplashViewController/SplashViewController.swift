@@ -26,7 +26,6 @@ final class SplashViewController: UIViewController {
         return imageView
     }()
     
-    
     // MARK: - View Life Cycles
     
     override func viewDidLoad() {
@@ -91,7 +90,6 @@ final class SplashViewController: UIViewController {
     }
 }
 
-
 // MARK: - AuthViewControllerDelegate
 
 extension SplashViewController: AuthViewControllerDelegate {
@@ -116,8 +114,8 @@ extension SplashViewController: AuthViewControllerDelegate {
             case .success:
                 self.switchToTabBarController()
                 print("Success")
-            case .failure:
-                print("Failure")
+            case .failure (let error):
+                print("Authorisation did had ERROR \(error.localizedDescription)")
                 break
             }
         }

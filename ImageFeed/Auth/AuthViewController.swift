@@ -28,7 +28,6 @@ final class AuthViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
     }
     
     // MARK: - Overrides Methods
@@ -71,23 +70,19 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         vc.dismiss(animated: true)
-        navigationController?.popViewController(animated: true)
-        ProgressHUD.animate()
-        ProgressHUD.animationType = .circleBarSpinFade
-        ProgressHUD.colorHUD = UIColor.gray
+        UIBlockingProgressHUD.show()
         
         OAuthService.fetchOAuthToken(code: code) { [weak self] result in
             guard let self = self else { return }
-            ProgressHUD.dismiss()
+            UIBlockingProgressHUD.dismiss()
             
             switch result {
             case .success(let token):
-                print(token)
+                print("\(token) is fetched")
                 delegate?.authViewController(self, didAuthenticateWithCode: code)
-                self.switchToTabBarController()
             case .failure(let error):
                 showAlert()
-                print("Error fetching token: \(error)")
+                print("Error fetching token in authorisation: \(error.localizedDescription)")
             }
         }
     }

@@ -41,11 +41,11 @@ final class ProfileService {
                 let profile = Profile(from: profileResult)
                 self.profile = profile
                 completion(.success(profile))
-                print("success")
+                print("Data did fetched")
             case .failure(let error):
-                print("[fetchProfile]: NetworkError - \(error.localizedDescription)")
+                print("Description of ERROR - \(error.localizedDescription)")
                 completion(.failure(error))
-                print("failure")
+                print("Data did not fetched")
             }
         }
         task?.resume()

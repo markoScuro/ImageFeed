@@ -10,22 +10,30 @@ import SwiftKeychainWrapper
 
 final class OAuth2TokenStorage {
     
-    // MARK: - Public Properties
+    // MARK: - SingleTon OAuth2TokenStorage
     
     static let shared = OAuth2TokenStorage()
+    private init() { }
+    
+    // MARK: - Properties
+    
+    private let tokenKey = "BearerToken"
+    
     var bearerToken: String? {
         get {
-            return KeychainWrapper.standard.string(forKey: "accessToken")
+            KeychainWrapper.standard.string(forKey: tokenKey)
         }
         set {
             if let token = newValue {
-                let isSuccess = KeychainWrapper.standard.set(token, forKey: "accessToken")
+                let isSuccess = KeychainWrapper.standard.set(token, forKey: tokenKey)
                 guard isSuccess else {
                     return
                 }
             } else {
-                KeychainWrapper.standard.removeObject(forKey: "accessToken")
+                KeychainWrapper.standard.removeObject(forKey: tokenKey)
             }
         }
     }
 }
+
+

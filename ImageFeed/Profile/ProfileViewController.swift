@@ -7,6 +7,7 @@
 
 import UIKit
 import Kingfisher
+
 final class ProfileViewController: UIViewController {
     
     // MARK: - Private Properties
@@ -19,7 +20,7 @@ final class ProfileViewController: UIViewController {
         username: "ekaterina_nov",
         name: "Екатерина Новикова",
         loginName: "@ekaterina_nov",
-        description: "Hello, world!"
+        bio: "Hello, world!"
     )
     
     private var profileImageServiceObserver: NSObjectProtocol?
@@ -86,7 +87,7 @@ final class ProfileViewController: UIViewController {
         self.profile = profile
         nameLabel.text = profile.name
         loginNameLabel.text = profile.loginName
-        descriptionLabel.text = profile.description
+        descriptionLabel.text = profile.bio
     }
     
     // MARK: - Private Methods
@@ -101,10 +102,9 @@ final class ProfileViewController: UIViewController {
             case .success(let value):
                 print("Image: \(value.image); Image URL: \(value.source.url?.absoluteString ?? "")")
             case .failure(let error):
-                print("Error: \(error)")
+                print("Error: \(error.localizedDescription)")
             }
         }
-        
     }
     
     private func setupViews() {

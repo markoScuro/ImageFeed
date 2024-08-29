@@ -38,19 +38,15 @@ final class WebViewViewController: UIViewController {
         updateProgress()
         progressObservation()
         webView.navigationDelegate = self
-        
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
         updateProgress()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        
     }
     
     // MARK: - IB Actions
@@ -73,7 +69,6 @@ final class WebViewViewController: UIViewController {
     }
     private func loadAuthView() {
         guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
-            print()
             return
         }
         
