@@ -9,8 +9,8 @@ import Foundation
 
 enum NetworkError: Error {
     case httpStatusCode(Int)
-    case urlRequestError
-    case urlSessionError
-    case invalidURL
+    case badRequest
+    case badSession
+    case badURL
     case invalidJSON
 }

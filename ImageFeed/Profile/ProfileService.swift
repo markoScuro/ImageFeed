@@ -30,7 +30,7 @@ final class ProfileService {
         }
         
         guard let request = makeProfileRequest(token: token) else {
-            completion(.failure(NetworkError.urlRequestError))
+            completion(.failure(NetworkError.badRequest))
             return
         }
         

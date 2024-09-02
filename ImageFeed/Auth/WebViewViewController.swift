@@ -80,6 +80,7 @@ final class WebViewViewController: UIViewController {
         ]
         
         guard let url = urlComponents.url else {
+            print("\(NetworkError.badURL.localizedDescription)")
             return
         }
         

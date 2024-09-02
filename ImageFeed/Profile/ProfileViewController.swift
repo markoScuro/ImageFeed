@@ -12,9 +12,8 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - Private Properties
     
-    private var profileService = ProfileService.shared
+    private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
-    private let tokenStorage = OAuth2TokenStorage.shared
     
     private var profile: Profile = Profile(
         username: "ekaterina_nov",
@@ -79,7 +78,9 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - IB Actions
     
-    @IBAction private func didTapLogoutButton(_ sender: Any) { }
+    @IBAction private func didTapLogoutButton(_ sender: Any) {
+        //TODO
+    }
     
     // MARK: - Public Methods
     

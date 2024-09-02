@@ -21,8 +21,7 @@ final class AuthViewController: UIViewController {
         static let tapBarViewControllerID = "TabBarViewController"
     }
     
-    private let tokenStorage = OAuth2TokenStorage.shared
-    private let OAuthService = OAuth2Service.shared
+    private let oauthService = OAuth2Service.shared
     
     // MARK: - View Life Cycle
     
@@ -34,9 +33,10 @@ final class AuthViewController: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == Identifiers.showWebViewSegueIdentifier {
-            guard
-                let webViewViewController = segue.destination as? WebViewViewController
-            else { fatalError("Failed to prepare for \(Identifiers.showWebViewSegueIdentifier)") }
+            guard let webViewViewController = segue.destination as? WebViewViewController
+            else { 
+                assertionFailure("Failed to prepare for \(Identifiers.showWebViewSegueIdentifier)")
+                return }
             webViewViewController.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
@@ -50,7 +50,6 @@ final class AuthViewController: UIViewController {
             assertionFailure("Invalid window configuration")
             return
         }
-        
         let tabBarController = UIStoryboard(name: "Main", bundle: .main)
             .instantiateViewController(withIdentifier: Identifiers.tapBarViewControllerID)
         
@@ -58,8 +57,15 @@ final class AuthViewController: UIViewController {
     }
     
     private func showAlert() {
-        let alert = UIAlertController(title: "Что-то пошло не так(", message: "Не удалось войти в систему", preferredStyle: .alert)
-        let action = UIAlertAction(title: "Ок", style: .default)
+        let alert = UIAlertController(
+            title: "Что-то пошло не так(",
+            message: "Не удалось войти в систему",
+            preferredStyle: .alert
+        )
+        let action = UIAlertAction(
+            title: "Ок",
+            style: .default
+        )
         alert.addAction(action)
         present(alert, animated: true)
     }
@@ -68,11 +74,12 @@ final class AuthViewController: UIViewController {
 // MARK: - WebViewViewControllerDelegate
 
 extension AuthViewController: WebViewViewControllerDelegate {
+    
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         vc.dismiss(animated: true)
         UIBlockingProgressHUD.show()
         
-        OAuthService.fetchOAuthToken(code: code) { [weak self] result in
+        oauthService.fetchOAuthToken(code: code) { [weak self] result in
             guard let self = self else { return }
             UIBlockingProgressHUD.dismiss()
             

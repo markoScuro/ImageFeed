@@ -28,10 +28,10 @@ extension URLSession {
                     print("Status code ERROR - \(statusCode.description)")
                 }
             } else if error != nil {
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlRequestError))
+                fulfillCompletionOnTheMainThread(.failure(NetworkError.badRequest))
                 print(NSError(domain: "URL request ERROR", code: 400))
             } else {
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlSessionError))
+                fulfillCompletionOnTheMainThread(.failure(NetworkError.badSession))
                 print("Just URL Session ERROR")
             }
         })
@@ -45,17 +45,21 @@ extension URLSession {
         completion: @escaping (Result<T, Error>) -> Void
     ) -> URLSessionTask {
         
-        
+        let fulfillCompletionOnTheMainThread: (Result<T, Error>) -> Void = { result in
+                  DispatchQueue.main.async {
+                    completion(result)
+                    }
+                }
         let task = data(for: request) { (result: Result<Data, Error>) in
             switch result {
             case .success(let data):
                 do {
-                    let decoder = SnakeCaseJSONDecoder()
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
                     let object = try decoder.decode(T.self, from: data)
-                    completion(.success(object))
-                }
-                catch {
-                    completion(.failure(NetworkError.invalidJSON))
+                    fulfillCompletionOnTheMainThread(.success(object))
+                } catch {
+                    fulfillCompletionOnTheMainThread(.failure(NetworkError.invalidJSON))
                     print("Decoding JSON file ERROR")
                 }
             case .failure(let unknownError):

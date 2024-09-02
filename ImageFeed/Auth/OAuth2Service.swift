@@ -14,10 +14,6 @@ final class OAuth2Service {
     static let shared = OAuth2Service()
     private init() {}
     
-    // MARK: - Public Properties
-    
-    weak var delegate: AuthViewControllerDelegate?
-    
     // MARK: - Private Properties
     
     private let urlSession = URLSession.shared
@@ -35,7 +31,7 @@ final class OAuth2Service {
         }
         task?.cancel()
         lastCode = code
-
+        
         guard let request = make0AuthTokenRequest(with: code)
         else {
             completion(.failure(OAuthError.urlRequestError))
@@ -70,24 +66,23 @@ final class OAuth2Service {
         task.resume()
     }
     
-}
-func make0AuthTokenRequest(with code: String) -> URLRequest? {
-    
-    var components = URLComponents(string: "https://unsplash.com/oauth/token")
-    components?.queryItems = [
-        URLQueryItem(name: "client_id", value: Constants.accessKey),
-        URLQueryItem(name: "client_secret", value: Constants.secretKey),
-        URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
-        URLQueryItem(name: "code", value: code),
-        URLQueryItem(name: "grant_type", value: "authorization_code")
-    ]
-    guard let url = components?.url else {
-        assertionFailure("Failed to create URL")
-        return nil
+   private func make0AuthTokenRequest(with code: String) -> URLRequest? {
+        
+        var components = URLComponents(string: "https://unsplash.com/oauth/token")
+        components?.queryItems = [
+            URLQueryItem(name: "client_id", value: Constants.accessKey),
+            URLQueryItem(name: "client_secret", value: Constants.secretKey),
+            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
+            URLQueryItem(name: "code", value: code),
+            URLQueryItem(name: "grant_type", value: "authorization_code")
+        ]
+        guard let url = components?.url else {
+            assertionFailure("Failed to create URL")
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        return request
     }
-    
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    return request
-    
 }

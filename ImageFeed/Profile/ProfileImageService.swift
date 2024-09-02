@@ -7,13 +7,6 @@
 
 import Foundation
 
-struct UserResult: Codable {
-    let profileImage: ProfileImage
-    enum CodingKeys: String, CodingKey {
-        case profileImage = "profile_image"
-    }
-}
-
 final class ProfileImageService {
     
     // MARK: - Singleton ProfileImageService
@@ -37,7 +30,7 @@ final class ProfileImageService {
     func fetchProfileImageURL(username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
         guard lastUsername != username else {
-            completion(.failure(ProfileServiceError.invalidRequest))
+            completion(.failure(ProfileServiceError.badRequest))
             print("Request did invalid")
             return
         }
@@ -46,7 +39,7 @@ final class ProfileImageService {
         lastUsername = username
         
         guard let request = makeProfileImageRequest(username: username) else {
-            completion(.failure(ProfileServiceError.invalidURL))
+            completion(.failure(ProfileServiceError.badURL))
             print("URL did not confirm")
             return
         }
@@ -63,6 +56,7 @@ final class ProfileImageService {
                     self?.avatarURL = profileImageURL
                     completion(.success(profileImageURL))
                     
+                    
                     NotificationCenter.default.post(
                         name: ProfileImageService.didChangeNotification,
                         object: self,
@@ -71,18 +65,7 @@ final class ProfileImageService {
                     
                 case .failure(let error):
                     if let networkError = error as? NetworkError {
-                        switch networkError {
-                        case .httpStatusCode(let statusCode):
-                            print("HTTP status code error: \(statusCode)")
-                        case .urlRequestError:
-                            print("URL request error: \(error.localizedDescription)")
-                        case .urlSessionError:
-                            print("URL session error: \(error.localizedDescription)")
-                        case .invalidURL:
-                            print("URL invalid error: \(error.localizedDescription)")
-                        case .invalidJSON:
-                            print("JSON error: \(error.localizedDescription)")
-                        }
+                        self?.errorHandler(networkError)
                     } else {
                         print("Network error: \(error.localizedDescription)")
                     }
@@ -100,7 +83,7 @@ final class ProfileImageService {
     // MARK: - Private Methods
     
     private func makeProfileImageRequest(username: String) -> URLRequest? {
-        guard let baseURL = URL(string: "https://api.unsplash.com") else {
+        guard let baseURL = URL(string: Constants.baseURL) else {
             assertionFailure("Failed to create URL")
             return nil
         }
@@ -110,11 +93,29 @@ final class ProfileImageService {
         }
         
         var request = URLRequest(url: url)
-        request.addValue("Bearer \(OAuth2TokenStorage.shared.bearerToken ?? "")", forHTTPHeaderField: "Authorization")
+        request.addValue("Bearer \(String(describing: OAuth2TokenStorage.shared.bearerToken))", forHTTPHeaderField: "Authorization")
         request.httpMethod = "GET"
         return request
     }
+    
+    private func errorHandler(_ networkError: NetworkError) {
+        switch networkError {
+        case .httpStatusCode(let statusCode):
+            print("HTTP status code ERROR: \(statusCode)")
+        case .badRequest:
+            print("URl request ERROR: \(networkError.localizedDescription)")
+        case .badSession:
+            print("URL session ERROR: \(networkError.localizedDescription)")
+        case .badURL:
+            print("Invalid URL ERROR: \(networkError.localizedDescription) ")
+        case .invalidJSON:
+            print("InvalidJSON ERROR: \(networkError.localizedDescription)")
+        }
+    }
 }
+
+
+
 
 
 

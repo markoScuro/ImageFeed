@@ -8,9 +8,9 @@
 import Foundation
 
 enum ProfileServiceError: Error {
-     case invalidRequest
-     case invalidURL
-     case noData
-     case decodingError
-     case missingProfileImageURL
- }
+    case badRequest
+    case badURL
+    case noData
+    case decodingError
+    case missingProfileImageURL
+}

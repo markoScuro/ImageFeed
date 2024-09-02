@@ -11,7 +11,6 @@ final class SplashViewController: UIViewController {
     
     // MARK: - Private Properties
     
-    private let showAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
     private let oauth2Service = OAuth2Service.shared
     private let oauth2TokenStorage = OAuth2TokenStorage.shared
     private let profileService = ProfileService.shared
@@ -31,6 +30,7 @@ final class SplashViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSplashViewConstraints()
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -70,23 +70,49 @@ final class SplashViewController: UIViewController {
     }
     
     private func switchToTabBarController() {
-        guard let window = UIApplication.shared.windows.first else { fatalError("Invalid Configuration") }
-        let tabBarController = UIStoryboard(name: "Main", bundle: .main)
+        guard let window = UIApplication.shared.windows.first else {
+            print("[window]: You configuration is incorrect")
+            return
+        }
+        let tabBarController = UIStoryboard(
+            name: "Main",
+            bundle: .main)
             .instantiateViewController(withIdentifier: "TabBarViewController")
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()
     }
     
     private func showAuthViewController() {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let storyboard = UIStoryboard(
+            name: "Main",
+            bundle: nil)
         guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else {
             print("Failed to instantiate AuthViewController")
             return
         }
         authViewController.delegate = self
         authViewController.modalPresentationStyle = .fullScreen
-        
         present(authViewController, animated: true, completion: nil)
+    }
+    
+    private func fetchOAuthToken(_ code: String) {
+        UIBlockingProgressHUD.show()
+        oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self = self else { return }
+            switch result {
+            case .success:
+                
+                print("Authorisation did success")
+                
+                profileImageService.fetchProfileImageURL(
+                    username: profileService.profile?.username ?? "userName") {_ in }
+                self.switchToTabBarController()
+            case .failure (let error):
+                print("Authorisation did had ERROR \(error.localizedDescription)")
+                break
+            }
+        }
     }
 }
 
@@ -103,22 +129,6 @@ extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
         switchToTabBarController()
-    }
-    
-    private func fetchOAuthToken(_ code: String) {
-        UIBlockingProgressHUD.show()
-        oauth2Service.fetchOAuthToken(code: code) { [weak self] result in
-            UIBlockingProgressHUD.dismiss()
-            guard let self = self else { return }
-            switch result {
-            case .success:
-                self.switchToTabBarController()
-                print("Success")
-            case .failure (let error):
-                print("Authorisation did had ERROR \(error.localizedDescription)")
-                break
-            }
-        }
     }
 }
 
