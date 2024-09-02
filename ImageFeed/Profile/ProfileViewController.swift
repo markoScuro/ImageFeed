@@ -6,10 +6,23 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
     // MARK: - Private Properties
+    
+    private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
+    
+    private var profile: Profile = Profile(
+        username: "ekaterina_nov",
+        name: "Екатерина Новикова",
+        loginName: "@ekaterina_nov",
+        bio: "Hello, world!"
+    )
+    
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     private lazy var avatarImageView: UIImageView = {
         let image = UIImage(named: "avatar")
@@ -41,7 +54,7 @@ final class ProfileViewController: UIViewController {
         return label
     }()
     
-    private var logoutButton: UIButton = {
+    private lazy var logoutButton: UIButton = {
         let button = UIButton.systemButton(with: UIImage(named: "logout_button")!, target: ProfileViewController.self, action: nil)
         button.tintColor = UIColor(red: 0.96, green: 0.42, blue: 0.42, alpha: 1.00)
         return button
@@ -52,15 +65,48 @@ final class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        profileImageServiceObserver = NotificationCenter.default.addObserver(forName: ProfileImageService.didChangeNotification, object: nil, queue: .main)
+        {[weak self] _ in guard let self = self else {return}
+            self.updateAvatar()
+        }
+        
+        updateAvatar()
+        updateProfileDetails(profile: profile)
         setupViews()
         setupConstraints()
     }
     
     // MARK: - IB Actions
     
-    @IBAction private func didTapLogoutButton(_ sender: Any) { }
+    @IBAction private func didTapLogoutButton(_ sender: Any) {
+        //TODO
+    }
+    
+    // MARK: - Public Methods
+    
+    func updateProfileDetails(profile: Profile) {
+        self.profile = profile
+        nameLabel.text = profile.name
+        loginNameLabel.text = profile.loginName
+        descriptionLabel.text = profile.bio
+    }
     
     // MARK: - Private Methods
+    
+    private func updateAvatar() {
+        guard let profileImageURL = ProfileImageService.shared.avatarURL,
+              let url = URL(string: profileImageURL)
+        else { return }
+        
+        avatarImageView.kf.setImage(with: url) { result in
+            switch result {
+            case .success(let value):
+                print("Image: \(value.image); Image URL: \(value.source.url?.absoluteString ?? "")")
+            case .failure(let error):
+                print("Error: \(error.localizedDescription)")
+            }
+        }
+    }
     
     private func setupViews() {
         [avatarImageView, nameLabel, descriptionLabel, logoutButton, loginNameLabel].forEach { $0.translatesAutoresizingMaskIntoConstraints = false

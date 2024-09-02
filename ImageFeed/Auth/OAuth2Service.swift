@@ -9,18 +9,64 @@ import Foundation
 
 final class OAuth2Service {
     
-    // MARK: - Public Properties
+    // MARK: - SingleTon OAuth2Service
     
     static let shared = OAuth2Service()
-    weak var delegate: AuthViewControllerDelegate?
-    
-    // MARK: - Initializers
-    
     private init() {}
+    
+    // MARK: - Private Properties
+    
+    private let urlSession = URLSession.shared
+    private var task: URLSessionTask?
+    private var lastCode: String?
     
     // MARK: - Public Methods
     
-    func make0AuthTokenRequest(with code: String) -> URLRequest? {
+    func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        assert(Thread.isMainThread)
+        guard lastCode != code else {
+            completion(.failure(OAuthError.urlRequestError))
+            print("URL request did not success")
+            return
+        }
+        task?.cancel()
+        lastCode = code
+        
+        guard let request = make0AuthTokenRequest(with: code)
+        else {
+            completion(.failure(OAuthError.urlRequestError))
+            print("Invalid fetch token request")
+            return
+        }
+        
+        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let oathToken):
+                    OAuth2TokenStorage.shared.bearerToken = oathToken.accessToken
+                    completion(.success(oathToken.accessToken))
+                case .failure(let error):
+                    if let oauthError = error as? OAuthError {
+                        switch oauthError {
+                        case .httpStatusCode(let statusCode):
+                            print("HTTP status code error: \(statusCode.description)")
+                        case .urlRequestError:
+                            print("URL request error: \(error.localizedDescription))")
+                        }
+                    } else {
+                        print("Unknown network error: \(error.localizedDescription)")
+                    }
+                    completion(.failure(error))
+                }
+                self?.task = nil
+                self?.lastCode = nil
+            }
+        }
+        self.task = task
+        task.resume()
+    }
+    
+   private func make0AuthTokenRequest(with code: String) -> URLRequest? {
         
         var components = URLComponents(string: "https://unsplash.com/oauth/token")
         components?.queryItems = [
@@ -31,40 +77,12 @@ final class OAuth2Service {
             URLQueryItem(name: "grant_type", value: "authorization_code")
         ]
         guard let url = components?.url else {
+            assertionFailure("Failed to create URL")
             return nil
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         return request
-    }
-    
-    func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let request = make0AuthTokenRequest(with: code) else {
-            completion(.failure(NetworkError.invalidURL))
-            print("Invalid fetch token request")
-            return
-        }
-        
-        let decoder = JSONDecoder()
-//        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        let task = URLSession.shared.data(for: request) { result in
-            switch result {
-            case .success(let data):
-                do {
-                    let response = try decoder.decode(OAuthTokenResponseBody.self, from: data)
-                    let tokenStorage = OAuth2TokenStorage()
-                    tokenStorage.bearerToken = response.accessToken
-                    completion(.success("\(response.accessToken)"))
-                } catch {
-                    print("Error decoding OAuthTokenResponseBody: \(error)")
-                    completion(.failure(NetworkError.invalidJSON))
-                }
-            case .failure(let error):
-                print("Network error occurred: \(error)")
-                completion(.failure(error))
-            }
-        }
-        task.resume()
     }
 }
